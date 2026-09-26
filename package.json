@@ -1,12 +1,12 @@
 {
   "name": "etias-deploy-panel",
   "version": "2.0.0",
-  "description": "ETIAS-MINI-BOT Owner Deploy Panel - Auto PM2 + Expiry Watcher",
+  "description": "ETIAS-MINI-BOT Owner Deploy Panel - Auto PM2 + Expiry Watcher + MongoDB",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "pm2": "pm2 start index.js --name etias-deploy-panel",
+    "pm2": "pm2 start index.js --name etias-deploy-panel --max-memory-restart 200M",
     "logs": "pm2 logs etias-deploy-panel",
     "restart": "pm2 restart etias-deploy-panel"
   },
@@ -19,10 +19,15 @@
   "author": "ETIAS-TECH",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2"
+    "@whiskeysockets/baileys": "^6.7.18",
+    "dotenv": "^18.0.4",
+    "express": "^4.19.2",
+    "mongoose": "^8.4.4",
+    "pino": "^8.21.0",
+    "qrcode": "^1.5.3"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.0.3"
   },
   "engines": {
     "node": ">=18.0.0"
