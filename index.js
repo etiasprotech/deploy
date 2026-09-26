@@ -72,14 +72,12 @@ function saveDB(){
 }
 
 // Pages
-app.get('/', (req,res)=> res.sendFile(path.join(__dirname,'main.html')));
-app.get('/pair', (req,res)=> res.sendFile(path.join(__dirname,'pair.html')));
-app.get('/qr', (req,res)=> res.sendFile(path.join(__dirname,'qr.html')));
+app.get('/', (req,res)=> res.sendFile(path.join(__dirname,'deploy.html')));
 app.get('/deploy', (req,res)=> res.sendFile(path.join(__dirname,'deploy.html')));
 app.get('/deploy-panel', (req,res)=> res.sendFile(path.join(__dirname,'deploy.html')));
 
 app.get('/bot-image', (req,res)=>{
-  for(let n of ['bot.jpg','bot.jpeg','bot.png','bot_image.jpg']){
+  for(let n of ['bot.jpg','bot.jpeg','bot.png','bot_image.png']){
     let p = path.join(__dirname,'media',n);
     if(fs.existsSync(p)) return res.sendFile(p);
   }
