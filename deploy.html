@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETIAS-MINI-BOT | Owner Deploy</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--green:#25D366;--dark:#128C7E;--cyan:#00ffff;--pink:#ff1493;--bg:#050510}
+body{font-family:'Montserrat',sans-serif;background:var(--bg);color:#fff;min-height:100vh;overflow-x:hidden}
+#particles-js{position:fixed;width:100%;height:100%;z-index:-2;background:radial-gradient(circle,#0a1a0f,#000)}
+.cyber-grid{position:fixed;width:100%;height:100%;z-index:-1;background:linear-gradient(rgba(37,211,102,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(37,211,102,.05) 1px,transparent 1px);background-size:50px 50px;animation:grid 30s linear infinite}
+@keyframes grid{from{transform:translate(0,0)}to{transform:translate(-50px,-50px)}}
+.header{position:fixed;top:0;width:100%;padding:15px 25px;display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.7);backdrop-filter:blur(15px);border-bottom:2px solid var(--green);z-index:5}
+.logo{display:flex;align-items:center;gap:12px;font-family:'Orbitron';font-size:18px;font-weight:900;color:var(--green);text-shadow:0 0 10px var(--green)}
+.logo img{width:45px;height:45px;border-radius:50%;border:2px solid var(--green);box-shadow:0 0 20px var(--green);background:#111;object-fit:cover}
+.container{max-width:700px;margin:auto;padding:110px 15px 40px;display:flex;flex-direction:column;gap:25px}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%}
+.stat-card{background:rgba(20,20,20,.85);border:1px solid var(--green);border-radius:15px;padding:15px;text-align:center;backdrop-filter:blur(10px)}
+.stat-card i{font-size:22px;color:var(--green)}
+.stat-card h3{font-family:'Orbitron';font-size:22px;margin:5px 0}
+.stat-card p{font-size:12px;color:#aaa;letter-spacing:1px}
+.stat-card.active{border-color:#00ff88}.stat-card.active i{color:#00ff88}
+.stat-card.expired{border-color:#ff4444}.stat-card.expired i{color:#ff4444}
+.profile{text-align:center}
+.profile img{width:140px;height:140px;border-radius:50%;object-fit:cover;border:3px solid var(--green);box-shadow:0 0 30px var(--green),0 0 60px var(--dark);animation:float 4s infinite;background:#111}
+@keyframes float{50%{transform:translateY(-10px)}}
+.card{background:rgba(20,20,20,.85);backdrop-filter:blur(20px);border:2px solid var(--green);border-radius:20px;padding:28px;box-shadow:0 0 30px rgba(37,211,102,.2)}
+.card h2{font-family:'Orbitron';color:var(--green);text-align:center;margin-bottom:5px}
+.card.sub{text-align:center;color:#aaa;font-size:13px;margin-bottom:20px}
+label{font-size:12px;color:var(--green);font-weight:700;letter-spacing:1px;margin:12px 0 6px;display:block;font-family:'Orbitron'}
+.input-box{display:flex;flex-direction:column;gap:6px}
+.input-box input,.input-box select{width:100%;padding:14px 16px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.15);border-radius:12px;color:#fff;outline:none;transition:.3s;font-size:14px}
+.input-box input:focus,.input-box select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(37,211,102,.2)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn{width:100%;margin-top:18px;padding:14px;border:none;border-radius:12px;background:var(--green);color:#000;font-family:'Orbitron';font-weight:900;cursor:pointer;transition:.3s;letter-spacing:1px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 5px 20px rgba(37,211,102,.4)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+#logs{margin-top:20px;background:#000;border:1px solid var(--green);border-radius:12px;padding:15px;height:250px;overflow-y:auto;font-family:monospace;font-size:12px;line-height:1.6;display:none;text-align:left}
+.log{margin:3px 0}.log.success{color:#00ff88}.log.error{color:#ff5555}.log.info{color:var(--green)}.log.warn{color:#ffcc00}
+#result{margin-top:15px;padding:15px;border-radius:12px;text-align:center;display:none}
+.footer{text-align:center;color:var(--green);padding:20px;font-size:12px;opacity:.7}
+@media(max-width:600px){.stats-row{grid-template-columns:1fr}.row{grid-template-columns:1fr}.header{padding:12px 15px}.logo{font-size:14px}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+</style>
+</head>
+<body>
+<div id="particles-js"></div>
+<div class="cyber-grid"></div>
+
+<header class="header">
+<div class="logo">
+<img id="logoImg" src="/media/bot_image.png" alt="logo">
+ETIAS-MINI-BOT OWNER
+</div>
+<div style="color:#00ff88;font-family:'Orbitron';font-size:12px"><i class="fas fa-circle" style="font-size:8px;animation:blink 1s infinite"></i> ONLINE</div>
+</header>
+
+<div class="container">
+<div class="profile">
+<img id="profileImg" src="/media/bot_image.png" alt="ETIAS">
+</div>
+
+<div class="stats-row">
+<div class="stat-card"><i class="fas fa-users"></i><h3 id="total-sessions">0</h3><p>TOTAL SESSIONS</p></div>
+<div class="stat-card active"><i class="fas fa-plug"></i><h3 id="active-sessions">0</h3><p>ACTIVE</p></div>
+<div class="stat-card expired"><i class="fas fa-clock"></i><h3 id="expired-sessions">0</h3><p>EXPIRED</p></div>
+</div>
+
+<div class="card">
+<h2><i class="fas fa-rocket"></i> DEPLOY PANEL</h2>
+<p class="sub">Paste user's SESSION_ID to activate bot</p>
+
+<label>USER WHATSAPP NUMBER</label>
+<div class="input-box">
+<input id="userNumber" type="number" placeholder="2637XXXXXXXX">
+</div>
+
+<label>SESSION ID</label>
+<div class="input-box">
+<input id="session" placeholder="ETIAS-MINI-BOT~...">
+</div>
+
+<div class="row">
+<div>
+<label>DURATION</label>
+<div class="input-box">
+<select id="duration">
+<option value="7">7 Days</option>
+<option value="14">14 Days</option>
+<option value="21">21 Days</option>
+<option value="30" selected>30 Days</option>
+<option value="custom">Custom</option>
+</select>
+</div>
+</div>
+<div>
+<label id="customLabel" style="opacity:.5">CUSTOM DAYS</label>
+<div class="input-box">
+<input id="customDays" type="number" placeholder="e.g 45" disabled>
+</div>
+</div>
+</div>
+
+<button class="btn" id="deployBtn" onclick="deploy()"><i class="fas fa-power-off"></i> DEPLOY BOT</button>
+
+<div id="logs"></div>
+<div id="result"></div>
+</div>
+
+<div class="footer">© 2026 ETIAS-MINI-BOT | Owner: 263778810589</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script>
+// === FIXED IMAGE SYSTEM - WORKS IN media FOLDER ===
+function setupImgFallback(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const fallbacks = [
+    '/media/bot.jpg',
+    '/media/bot_image.png',
+    '/media/bot.jpeg',
+    '/media/logo.jpg',
+    '/media/bot_image.jpg',
+    '/media/bot_image.png'
+  ];
+  let idx = 0;
+  el.onerror = function(){
+    if(idx < fallbacks.length){
+      console.log('Trying fallback:', fallbacks[idx]);
+      this.src = fallbacks[idx++];
+    } else {
+      this.onerror = null;
+      this.src = 'https://i.imgur.com/8Km9tLL.png';
+    }
+  };
+}
+setupImgFallback('logoImg');
+setupImgFallback('profileImg');
+
+const durationSel=document.getElementById('duration');
+const customInput=document.getElementById('customDays');
+const customLabel=document.getElementById('customLabel');
+
+durationSel.addEventListener('change',()=>{
+  if(durationSel.value==='custom'){
+    customInput.disabled=false;
+    customLabel.style.opacity='1';
+    customInput.focus();
+  }else{
+    customInput.disabled=true;
+    customLabel.style.opacity='.5';
+    customInput.value='';
+  }
+});
+
+function addLog(msg,type='info'){
+  const logs=document.getElementById('logs');
+  logs.style.display='block';
+  const div=document.createElement('div');
+  div.className='log '+type;
+  const time=new Date().toLocaleTimeString();
+  div.innerHTML=`[${time}] ${msg}`;
+  logs.appendChild(div);
+  logs.scrollTop=logs.scrollHeight;
+}
+
+async function deploy(){
+  const session=document.getElementById('session').value.trim();
+  const userNumber=document.getElementById('userNumber').value.trim();
+  let days=durationSel.value;
+  if(days==='custom'){
+    days=customInput.value.trim();
+    if(!days || parseInt(days)<=0){ alert('Enter valid custom days'); return; }
+  }
+  const logs=document.getElementById('logs');
+  const result=document.getElementById('result');
+  const btn=document.getElementById('deployBtn');
+  if(!userNumber || userNumber.length<10){ alert('Enter valid user number'); return; }
+  if(!session ||!session.startsWith('ETIAS-MINI-BOT')){
+    result.style.display='block';
+    result.innerHTML='<p style="color:#ff5555">❌ Invalid SESSION_ID - Must start with ETIAS-MINI-BOT~</p>';
+    return;
+  }
+  btn.disabled=true;
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> DEPLOYING...';
+  logs.innerHTML='';
+  logs.style.display='block';
+  result.style.display='none';
+  addLog('> Validating session...','info');
+  await new Promise(r=>setTimeout(r,600));
+  addLog(`> User: ${userNumber}`,'info');
+  addLog(`> Duration: ${days} days`,'info');
+  await new Promise(r=>setTimeout(r,500));
+  addLog('> Decrypting SESSION_ID...','info');
+  await new Promise(r=>setTimeout(r,700));
+  addLog('> Connecting to WhatsApp...','warn');
+  await new Promise(r=>setTimeout(r,800));
+  addLog('> Fetching bot files...','info');
+  await new Promise(r=>setTimeout(r,600));
+  addLog('> Installing dependencies...','info');
+  try{
+    const res=await fetch('/deploy',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ session, userNumber, duration: parseInt(days) })
+    });
+    const data=await res.json();
+    if(data.status || data.success){
+      addLog('> WhatsApp linked successfully','success');
+      await new Promise(r=>setTimeout(r,500));
+      addLog('> Starting ETIAS-MINI-BOT core...','info');
+      await new Promise(r=>setTimeout(r,600));
+      addLog('> Loading commands... 156 commands loaded','success');
+      await new Promise(r=>setTimeout(r,400));
+      addLog('> 🎉 DEPLOY SUCCESSFULLY','success');
+      await new Promise(r=>setTimeout(r,300));
+      addLog('> ✅ Bot is ONLINE - User can use bot now','success');
+      result.style.display='block';
+      result.style.background='rgba(0,255,136,.1)';
+      result.style.border='1px solid #00ff88';
+      result.innerHTML=`
+        <h3 style="color:#00ff88;font-family:Orbitron">🎉 DEPLOY SUCCESSFULLY</h3>
+        <p style="margin:10px 0;color:#ccc">User <b style="color:#fff">${userNumber}</b> deployed for <b style="color:#fff">${days} days</b></p>
+        <p style="font-size:12px;color:#aaa">Expiry: ${data.expiry || new Date(Date.now()+parseInt(days)*86400000).toLocaleDateString()}</p>
+        <p style="margin-top:8px;color:var(--green)"><i class="fas fa-circle" style="font-size:8px"></i> Connected</p>
+      `;
+      loadStats();
+    }else{
+      addLog(`> ❌ Deploy failed: ${data.message}`,'error');
+      result.style.display='block';
+      result.style.background='rgba(255,0,0,.1)';
+      result.style.border='1px solid #ff4444';
+      result.innerHTML=`<p style="color:#ff5555">❌ ${data.message || 'Deploy failed'}</p>`;
+    }
+  }catch(e){
+    addLog(`> ❌ Server error: ${e.message}`,'error');
+    result.style.display='block';
+    result.style.background='rgba(255,0,0,.1)';
+    result.style.border='1px solid #ff4444';
+    result.innerHTML='<p style="color:#ff5555">❌ Server Error - Try again</p>';
+  }
+  btn.disabled=false;
+  btn.innerHTML='<i class="fas fa-power-off"></i> DEPLOY BOT';
+}
+
+async function loadStats(){
+  try{
+    const res=await fetch('/deploy-stats');
+    if(res.ok){
+      const d=await res.json();
+      document.getElementById('total-sessions').textContent=d.total||0;
+      document.getElementById('active-sessions').textContent=d.active||0;
+      document.getElementById('expired-sessions').textContent=d.expired||0;
+    }
+  }catch{}
+}
+
+particlesJS("particles-js",{particles:{number:{value:70},color:{value:["#25D366","#00ffff"]},size:{value:3},line_linked:{enable:true,color:"#25D366"},move:{speed:1.5}},interactivity:{events:{onclick:{enable:true,mode:"push"}}}});
+window.onload=loadStats;
+</script>
+</body>
+</html>

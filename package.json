@@ -1,0 +1,30 @@
+{
+  "name": "etias-deploy-panel",
+  "version": "2.0.0",
+  "description": "ETIAS-MINI-BOT Owner Deploy Panel - Auto PM2 + Expiry Watcher",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "pm2": "pm2 start index.js --name etias-deploy-panel",
+    "logs": "pm2 logs etias-deploy-panel",
+    "restart": "pm2 restart etias-deploy-panel"
+  },
+  "keywords": [
+    "etias-mini-bot",
+    "deploy-panel",
+    "pm2",
+    "whatsapp-bot"
+  ],
+  "author": "ETIAS-TECH",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
