@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETIAS-MINI-BOT - Users</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@400;600;800&display=swap');
+body{font-family:'Outfit',sans-serif; background:#0a0a0f;}
+.mono{font-family:'JetBrains Mono',monospace;}
+.glass{background:rgba(255,255,255,0.05); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.1);}
+</style>
+</head>
+<body class="min-h-screen text-white p-4 md:p-8">
+<div class="max-w-7xl mx-auto">
+
+<div class="flex justify-between items-center mb-8">
+<div>
+<h1 class="text-3xl font-extrabold">🤖 ETIAS-MINI-BOT</h1>
+<p class="text-white/60">Deployed Users Dashboard • MongoDB</p>
+</div>
+<div class="flex gap-3">
+<button onclick="loadUsers()" class="glass px-4 py-2 rounded-xl hover:bg-white/10"><i class="fa-solid fa-rotate"></i> Refresh</button>
+<a href="/" class="bg-white text-black px-4 py-2 rounded-xl font-bold">Home</a>
+</div>
+</div>
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+<div class="glass rounded-2xl p-5"><p class="text-white/50 text-sm">Total Users</p><h2 id="totalUsers" class="text-3xl font-bold">0</h2></div>
+<div class="glass rounded-2xl p-5"><p class="text-white/50 text-sm">Active Now</p><h2 id="activeUsers" class="text-3xl font-bold text-green-400">0</h2></div>
+<div class="glass rounded-2xl p-5"><p class="text-white/50 text-sm">Expired</p><h2 id="expiredUsers" class="text-3xl font-bold text-red-400">0</h2></div>
+<div class="glass rounded-2xl p-5"><p class="text-white/50 text-sm">Uptime</p><h2 class="text-xl font-bold">24/7 🔥</h2></div>
+</div>
+
+<div class="glass rounded-2xl overflow-hidden">
+<div class="p-5 border-b border-white/10 flex justify-between items-center">
+<h3 class="font-bold text-lg">Deployed Bots</h3>
+<input id="search" onkeyup="filterUsers()" placeholder="Search number..." class="bg-black/40 px-4 py-2 rounded-xl text-sm w-48 outline-none border border-white/10">
+</div>
+
+<div class="overflow-x-auto">
+<table class="w-full text-sm">
+<thead class="bg-white/5 text-white/50">
+<tr>
+<th class="p-4 text-left">User</th>
+<th class="p-4 text-left">Number / Status</th>
+<th class="p-4 text-left">Session</th>
+<th class="p-4 text-left">Duration</th>
+<th class="p-4 text-left">Deployed</th>
+<th class="p-4 text-center">Action</th>
+</tr>
+</thead>
+<tbody id="usersBody">
+<tr><td colspan="6" class="p-10 text-center text-white/40">Loading users from Mongo... <i class="fa-solid fa-spinner fa-spin"></i></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<p class="text-center text-white/20 text-xs mt-6">POWERED BY ETIAS-TECH • MongoDB Connected</p>
+</div>
+
+<script>
+let allUsers = [];
+
+async function loadUsers(){
+  const body = document.getElementById('usersBody');
+  body.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-white/40">Loading... <i class="fa-solid fa-spinner fa-spin"></i></td></tr>`;
+  try{
+    const res = await fetch('/api/users');
+    if(!res.ok) throw new Error(`API ${res.status}`);
+    const data = await res.json();
+    allUsers = Array.isArray(data)? data : data.users || [];
+    renderUsers(allUsers);
+  }catch(e){
+    body.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-red-400">❌ Mongo Error: ${e.message}<br><span class="text-white/40 text-xs">Check MONGO_URL env & /api/users route</span></td></tr>`;
+  }
+}
+
+function renderUsers(users){
+  const body = document.getElementById('usersBody');
+  const now = new Date();
+  document.getElementById('totalUsers').innerText = users.length;
+  document.getElementById('activeUsers').innerText = users.filter(u=> new Date(u.expiresAt) > now && u.status!=='expired').length;
+  document.getElementById('expiredUsers').innerText = users.filter(u=> new Date(u.expiresAt) <= now || u.status==='expired').length;
+
+  if(users.length===0){
+    body.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-white/40">No users deployed yet</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = users.map((u,i)=>{
+    const created = new Date(u.createdAt);
+    const expires = new Date(u.expiresAt);
+    const diffMs = expires - now;
+    const diffDays = Math.max(0, Math.ceil(diffMs / (1000*60*60*24)));
+    const isExpired = diffMs<=0 || u.status==='expired';
+    const durationText = isExpired? `<span class="text-red-400 font-bold">Expired</span>` : `${diffDays} days left`;
+    const progress = isExpired? 100 : Math.min(100, Math.max(0, ((30-diffDays)/30)*100));
+    const shortSession = (u.sessionId||'').slice(0,22)+'...';
+    const statusColor = u.status==='active'? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30';
+
+    // Use data attribute to avoid ' breaking
+    return `
+    <tr class="border-b border-white/5 hover:bg-white/5 ${isExpired?'opacity-60':''}">
+      <td class="p-4">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center font-bold">${(u.name||u.number||'?')[0].toUpperCase()}</div>
+          <div><p class="font-bold">${escapeHtml(u.name||'User')}</p><p class="text-white/40 text-xs">ID: ${u.number.slice(-4)}</p></div>
+        </div>
+      </td>
+      <td class="p-4"><p class="mono font-bold">+${u.number}</p><span class="text-[10px] px-2 py-0.5 rounded-full border ${statusColor}">${u.status||'active'}</span></td>
+      <td class="p-4"><div class="flex items-center"><span class="mono bg-black/50 px-2 py-1 rounded text-xs">${shortSession}</span> <button onclick="copySession(${i})" class="ml-2 glass px-2 py-1 rounded hover:bg-white/20"><i class="fa-regular fa-copy"></i></button></div></td>
+      <td class="p-4">
+        <div class="w-28">
+          <div class="flex justify-between text-xs mb-1"><span>${durationText}</span><span class="text-white/40">${diffDays}d</span></div>
+          <div class="w-full bg-white/10 h-1.5 rounded-full overflow-hidden"><div class="h-1.5 ${isExpired?'bg-red-500':'bg-green-400'} rounded-full" style="width:${isExpired?100:100-progress}%"></div></div>
+          <p class="text-[10px] text-white/40 mt-1">${expires.toLocaleDateString()}</p>
+        </div>
+      </td>
+      <td class="p-4 text-white/60 text-xs">${created.toLocaleDateString()}<br>${created.toLocaleTimeString()}</td>
+      <td class="p-4">
+        <div class="flex justify-center gap-2">
+          <button onclick="renewUser('${u.number}')" class="bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg text-xs font-bold"><i class="fa-solid fa-rotate"></i> Renew</button>
+          <button onclick="deleteUser('${u.number}')" class="bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg text-xs font-bold"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function escapeHtml(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function filterUsers(){
+  const q = document.getElementById('search').value.toLowerCase();
+  const filtered = allUsers.filter(u=> u.number.toLowerCase().includes(q) || (u.name||'').toLowerCase().includes(q));
+  renderUsers(filtered);
+}
+async function copySession(index){
+  const s = allUsers[index]?.sessionId || '';
+  await navigator.clipboard.writeText(s);
+  alert('✅ Session Copied\n'+s.slice(0,60)+'...');
+}
+async function deleteUser(number){
+  if(!confirm(`DELETE bot for +${number}?\nThis will remove from Mongo & logout!`)) return;
+  const res = await fetch(`/api/users/${number}`, {method:'DELETE'});
+  if(res.ok){ alert(`🗑️ Deleted ${number}`); loadUsers(); } else { alert('Delete failed'); }
+}
+async function renewUser(number){
+  if(!confirm(`Renew +${number} for +30 days?`)) return;
+  const res = await fetch(`/api/users/${number}/renew`, {method:'POST'});
+  const data = await res.json();
+  if(data.success){ alert(`♻️ Renewed till ${new Date(data.newExpiry).toLocaleDateString()}`); loadUsers(); } else { alert('Renew failed: '+data.error); }
+}
+loadUsers();
+</script>
+</body>
+</html>
