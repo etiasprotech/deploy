@@ -9,6 +9,7 @@ const qrcode = require('qrcode');
 const { exec } = require('child_process');
 
 const app = express();
+const BOT_REPO_URL = "https://github.com/etiasprotech/ETIAS-MINI-BOT.git";
 const PORT = process.env.PORT || 3000;
 const OWNER_KEY = process.env.OWNER_KEY || 'ETIAS7788';
 const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || '';
